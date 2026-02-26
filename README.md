@@ -231,27 +231,29 @@ Faites preuve de pédagogie et soyez clair dans vos explications et procedures d
 **Exercice 1 :**  
 Quels sont les composants dont la perte entraîne une perte de données ?  
   
-*..Répondez à cet exercice ici..*
+Les composants dont la perte entraîne une perte de données sont : 1)le pra-data : on perd toutes les données qu'on a depuis la dernière sauvegarde. 2)pra-backup : l'application va continuer à fonctionner mais on n'a plus notre backup/ sauvegarde de secoure. Et enfin si on perd le cluster K3D, on perd toute notre production et la sauvegarde.  
 
 **Exercice 2 :**  
 Expliquez nous pourquoi nous n'avons pas perdu les données lors de la supression du PVC pra-data  
   
-*..Répondez à cet exercice ici..*
+On n'a pas perdu les données lors de la suppression du PVC pra-data car le composant CronJob tourne toutes les minutes pour copier le fichier de base de données depuis pra-data vers pra-backup.
+De plus, pra-data et pra-backup sont indépendants donc en effaçant pra-data, on n'efface pas pra-backup.
+Et enfin si on revoit les messages c'est dû au Job de restore qui n'est pas automatique car on doit lancer la commande à la main.
 
 **Exercice 3 :**  
 Quels sont les RTO et RPO de cette solution ?  
-  
-*..Répondez à cet exercice ici..*
+  Le RTO est la durée d'interruption de service acceptable : quelques minutes.
+  Le RPO est la perte de donnée acceptable : 1 minutes. 
 
 **Exercice 4 :**  
 Pourquoi cette solution (cet atelier) ne peux pas être utilisé dans un vrai environnement de production ? Que manque-t-il ?   
   
-*..Répondez à cet exercice ici..*
+Parce que la restauration est manuelle. En production, ce sera ingérable. La base de donnée est stocké dans un fichier SQLite qui ne permet pas une haute disponibilité. Et enfin le pra-data et le pra-backup sont dans le même serveur donc si le serveur tombe, on n'a plus de sauvgearde non plus.
   
 **Exercice 5 :**  
 Proposez une archtecture plus robuste.   
   
-*..Répondez à cet exercice ici..*
+Avoir un cluster différents et sur un autre serveur pour les backups. 
 
 ---------------------------------------------------
 Séquence 6 : Ateliers  
