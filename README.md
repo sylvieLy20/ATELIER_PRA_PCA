@@ -350,7 +350,7 @@ spec:
         - |
           # On remplace le fichier de destination par celui choisi
           cp /backup/app-1772725621.db /data/app.db; 
-          echo "Restauration du point 15:42 effectuée avec succès."
+          echo "Restauration du point 15:47 effectuée avec succès."
         volumeMounts:
         - name: data
           mountPath: /data
