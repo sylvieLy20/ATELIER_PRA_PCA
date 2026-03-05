@@ -331,7 +331,7 @@ spec:
 ````
 <img width="702" height="307" alt="image" src="https://github.com/user-attachments/assets/92bbdde9-70be-44ff-bfa8-a0e83796176d" />
 
-Par exemple je veux revenir à l'état de 14h45. Je vais choisir le fichier app-1772725501.db . 
+Par exemple je veux revenir à l'état de 15h42. Je vais choisir le fichier app-1772725621.db . 
 
 ````
 apiVersion: batch/v1
@@ -349,8 +349,8 @@ spec:
         args:
         - |
           # On remplace le fichier de destination par celui choisi
-          cp /backup/app-1772725501.db /data/app.db; 
-          echo "Restauration du point 15:45 effectuée avec succès."
+          cp /backup/app-1772725621.db /data/app.db; 
+          echo "Restauration du point 15:42 effectuée avec succès."
         volumeMounts:
         - name: data
           mountPath: /data
