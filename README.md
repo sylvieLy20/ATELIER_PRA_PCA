@@ -329,6 +329,8 @@ spec:
           claimName: pra-backup
       restartPolicy: Never
 ````
+<img width="702" height="307" alt="image" src="https://github.com/user-attachments/assets/92bbdde9-70be-44ff-bfa8-a0e83796176d" />
+
 Par exemple je veux revenir à l'état de 14h45. Je vais choisir le fichier app-1772725501.db . 
 
 ````
