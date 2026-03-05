@@ -268,6 +268,8 @@ Difficulté : Moyenne (~2 heures)
 *..**Déposez ici une copie d'écran** de votre réussite..*
 <img width="1900" height="334" alt="image" src="https://github.com/user-attachments/assets/8ef0ddc9-fb61-41fb-8737-03b1e195fb7f" />
 
+Ici,j'ai modifié les fichiers app.py et 20-deployment.yml afin d'ajouter une nouvelle fonctionnalité à mon application. 
+
 ---------------------------------------------------
 ### **Atelier 2 : Choisir notre point de restauration**  
 Aujourd’hui nous restaurobs “le dernier backup”. Nous souhaitons **ajouter la capacité de choisir un point de restauration**.
