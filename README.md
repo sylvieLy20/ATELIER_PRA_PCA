@@ -268,14 +268,127 @@ Difficulté : Moyenne (~2 heures)
 *..**Déposez ici une copie d'écran** de votre réussite..*
 <img width="1900" height="334" alt="image" src="https://github.com/user-attachments/assets/8ef0ddc9-fb61-41fb-8737-03b1e195fb7f" />
 
-Ici,j'ai modifié les fichiers app.py et 20-deployment.yml afin d'ajouter une nouvelle fonctionnalité à mon application. 
+Ici,j'ai modifié les fichiers app.py et 20-deployment.yaml afin d'ajouter une nouvelle fonctionnalité à mon application. 
 
 ---------------------------------------------------
 ### **Atelier 2 : Choisir notre point de restauration**  
-Aujourd’hui nous restaurobs “le dernier backup”. Nous souhaitons **ajouter la capacité de choisir un point de restauration**.
+Aujourd’hui nous restaurons “le dernier backup”. Nous souhaitons **ajouter la capacité de choisir un point de restauration**.
 
-*..Décrir ici votre procédure de restauration (votre runbook)..*  
-  
+Afin d'avoir une restauration sélective, il faut suivre les étapes suivantes :
+ 1ère étape : Identifier notre point de restauration. 
+ Cette étape permet de lister les sauvegardes disponibles dans le volume de backup pour choisir le bon timestamp. 
+ On utilise la commande : 
+ ```kubectl -n pra run list-backups --rm -it --image=alpine --overrides='
+{
+  "spec": {
+    "containers": [{
+      "name": "list",
+      "image": "alpine",
+      "command": ["ls", "-lh", "/backup"],
+      "volumeMounts": [{"name": "vol", "mountPath": "/backup"}]
+    }],
+    "volumes": [{"name": "vol", "persistentVolumeClaim": {"claimName": "pra-backup"}}]
+  }
+}``
+Cela va nous donner un nom qu'on va garder pour la suite.
+<img width="1264" height="464" alt="image" src="https://github.com/user-attachments/assets/343ad00e-a055-4fbe-b9e7-5fe14f44d512" />
+
+2ème étape : Modifier le Job de restauration
+
+Il faut cette fois modifier le fichier 50-job-restore.yaml. Afin de permettre le choix on va utiliser une variable d'environnement.
+````apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sqlite-restore-selective
+  namespace: pra
+spec:
+  template:
+    spec:
+      containers:
+      - name: restore
+        image: alpine
+        env:
+        - name: BACKUP_FILE
+          value: "backup-2026-03-05_15-30.db" # <--- ICI : Le nom du fichier choisi
+        command: ["sh", "-c"]
+        args:
+        - |
+          cp /backup/$BACKUP_FILE /data/app.db; # On utilise la variable
+          echo "Restauration de $BACKUP_FILE terminée."
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: backup
+          mountPath: /backup
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: pra-data
+      - name: backup
+        persistentVolumeClaim:
+          claimName: pra-backup
+      restartPolicy: Never
+````
+Par exemple je veux revenir à l'état de 14h45. Je vais choisir le fichier app-1772725501.db . 
+
+````
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sqlite-restore-selective
+  namespace: pra
+spec:
+  template:
+    spec:
+      containers:
+      - name: restore
+        image: alpine
+        command: ["sh", "-c"]
+        args:
+        - |
+          # On remplace le fichier de destination par celui choisi
+          cp /backup/app-1772725501.db /data/app.db; 
+          echo "Restauration du point 15:45 effectuée avec succès."
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: backup
+          mountPath: /backup
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: pra-data
+      - name: backup
+        persistentVolumeClaim:
+          claimName: pra-backup
+      restartPolicy: Never
+````
+
+3ème étape : Executer la restauration
+
+On commence par arrêter l'application pour libérer le verrou sur le fichier SQLite
+
+````
+kubectl -n pra scale deployment flask --replicas=0
+````
+
+On lance ensuite la restauration :
+````
+kubectl delete job sqlite-restore-selective -n pra --ignore-not-found
+kubectl apply -f pra/50-job-restore.yaml
+````
+
+Enfin on redémarre l'application :
+````
+kubectl -n pra scale deployment flask --replicas=1
+````
+
+4ème étape : Vérifier la version finale
+
+On vérifie le lien avec /consultation à la fin.
+
+
+
 ---------------------------------------------------
 Evaluation
 ---------------------------------------------------
